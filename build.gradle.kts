@@ -4,11 +4,10 @@ plugins {
     application
     java
     `java-library`
+    `maven-publish`
     id("com.github.johnrengelman.shadow") version "6.1.0"
+    id("com.jfrog.bintray") version "1.8.5"
 }
-
-group = "com.broxus"
-version = "0.0.1-alpha"
 
 repositories {
     mavenCentral()
@@ -17,7 +16,35 @@ repositories {
     maven { url = uri("https://oss.jfrog.org/artifactory/oss-snapshot-local/") } // for SNAPSHOT builds
 }
 
+//  Project config
+group = "com.broxus"
+version = "0.0.1-alpha"
+
+//  Bintray config
+val artifactName = "nova-lib"
+val artifactGroup = project.group.toString()
+val artifactVersion = project.version.toString()
+
+val pomUrl = "https://github.com/vp-mazekine/nova-lib"
+val pomScmUrl = "https://github.com/vp-mazekine/nova-lib"
+val pomIssueUrl = "https://github.com/vp-mazekine/nova-lib/issues"
+val pomDesc = "https://github.com/vp-mazekine/nova-lib"
+
+val githubRepoAddress = "vp-mazekine/nova-lib"
+val githubReadme = "README.md"
+
+val pomLicenseName = "Apache-2.0"
+val pomLicenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt"
+val pomLicenseDist = "repo"
+
+val pomDeveloperId = "vp-mazekine"
+val pomDeveloperName = "Vladislav Ponomarev"
+val pomDeveloperEmail = "vp@mazekine.com"
+
+
+//  Arrow config
 val arrowVersion = "0.11.0"
+
 
 dependencies {
     implementation(kotlin("stdlib"))
@@ -44,7 +71,7 @@ dependencies {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>() {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = "11" // was 1.8
 }.forEach {
     it.kotlinOptions { freeCompilerArgs = listOf("-Xnew-inference") }
 }
@@ -54,8 +81,88 @@ application {
     mainClass.set("com.broxus.nova.client.NovaApiService")
 }
 
+/*
 tasks.jar {
     archiveBaseName.set("nova-lib")
     archiveClassifier.set("")
     archiveExtension.set("jar")
+}*/
+
+/*tasks.shadowJar {
+    archiveBaseName.set(artifactName)
+    archiveClassifier.set("")
+    archiveExtension.set("jar")
+}*/
+
+val sourcesJar by tasks.creating(Jar::class) {
+    archiveClassifier.set("sources")
+    from(sourceSets.getByName("main").allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>(artifactName) {
+            groupId = artifactGroup
+            artifactId = artifactName
+            version = artifactVersion
+            from(components["java"])
+
+            artifact(sourcesJar)
+
+            pom.withXml{
+                asNode().apply {
+                    appendNode("description", pomDesc)
+                    appendNode("name", rootProject.name)
+                    appendNode("url", pomUrl)
+                    appendNode("licenses").appendNode("license").apply {
+                        appendNode("name", pomLicenseName)
+                        appendNode("url", pomLicenseUrl)
+                        appendNode("distribution", pomLicenseDist)
+                    }
+                    appendNode("developers").appendNode("developer").apply {
+                        appendNode("id", pomDeveloperId)
+                        appendNode("name", pomDeveloperName)
+                        appendNode("email", pomDeveloperEmail)
+                    }
+                    appendNode("scm").apply {
+                        appendNode("url", pomScmUrl)
+                    }
+                }
+            }
+        }
+    }
+}
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_KEY")
+    setPublications(artifactName)
+
+    dryRun = true
+    publish = true
+    override = false
+
+    pkg(delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.PackageConfig>{
+        repo = artifactName
+        name = artifactName
+
+        userOrg = "mazekine"
+        githubRepo = githubRepoAddress
+        vcsUrl = pomUrl
+        description = "Kotlin wrapper for Broxus Nova API"
+        desc = description
+        websiteUrl = pomUrl
+        issueTrackerUrl = pomIssueUrl
+        githubReleaseNotesFile = githubReadme
+
+        setLabels("kotlin", "broxus", "nova", "wrapper", "mazekine")
+        setLicenses("Apached-2.0")
+
+        version(delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.VersionConfig> {
+            name = artifactVersion
+            desc = pomDesc
+            //released = Date()
+            vcsTag = artifactVersion
+        })
+    })
 }
