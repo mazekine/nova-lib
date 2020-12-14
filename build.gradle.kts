@@ -134,11 +134,11 @@ publishing {
 }
 
 bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_KEY")
+    user = project.findProperty("bintrayUser").toString()
+    key = project.findProperty("bintrayKey").toString()
     setPublications(artifactName)
 
-    dryRun = true
+    dryRun = false
     publish = true
     override = false
 
@@ -146,7 +146,7 @@ bintray {
         repo = artifactName
         name = artifactName
 
-        userOrg = "mazekine"
+        userOrg = "cryonyx"
         githubRepo = githubRepoAddress
         vcsUrl = pomUrl
         description = "Kotlin wrapper for Broxus Nova API"
