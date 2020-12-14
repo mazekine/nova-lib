@@ -81,19 +81,6 @@ application {
     mainClass.set("com.broxus.nova.client.NovaApiService")
 }
 
-/*
-tasks.jar {
-    archiveBaseName.set("nova-lib")
-    archiveClassifier.set("")
-    archiveExtension.set("jar")
-}*/
-
-/*tasks.shadowJar {
-    archiveBaseName.set(artifactName)
-    archiveClassifier.set("")
-    archiveExtension.set("jar")
-}*/
-
 val sourcesJar by tasks.creating(Jar::class) {
     archiveClassifier.set("sources")
     from(sourceSets.getByName("main").allSource)
