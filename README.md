@@ -19,7 +19,7 @@ dependencies {
 ```
 ### Gradle DSL
 * Include reference to the repository in your `repositories` section of your root `build.gradle`:
-```groovy
+```gradle  
 repositories {
     maven {
         url = uri("https://dl.bintray.com/cryonyx/nova-lib")
@@ -27,7 +27,7 @@ repositories {
 }
 ```
 * Add the code to your module's `build.gradle` file:
-```groovy
+```gradle
 dependencies {
     implementation("com.broxus:nova-lib:0.0.1-alpha")
 }
