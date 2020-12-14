@@ -460,6 +460,13 @@ object NovaApiService {
         return result.isSuccessful
     }
 
+    /**
+     * Get current orders book by specified base and counter currencies
+     *
+     * @param base Base currency
+     * @param counter Quote currency
+     * @param workspaceId Id of workspace. UUID ver. 4 rfc
+     */
     fun getOrderBook(
         base: String,
         counter: String,
@@ -498,4 +505,71 @@ object NovaApiService {
         }
     }
 
+
+    //  TRANSFERS
+
+    /**
+     * Send internal transaction to another account of Broxus Nova
+     *
+     * @param value Amount of currency. Positive floating point number.
+     * @param currency Сurrency identifier or ticker. Can contain more than 3 letters
+     * @param fromUserAddress The unique address of the user. Which value to specify the address depends on the addressType. Case sensitive
+     * @param fromAddressType User address type. Case sensitive
+     * @param fromWorkspaceId Id of workspace. UUID ver. 4 rfc
+     * @param toUserAddress The unique address of the user. Which value to specify the address depends on the addressType. Case sensitive
+     * @param toAddressType User address type. Case sensitive
+     * @param toWorkspaceId Id of workspace. UUID ver. 4 rfc
+     * @param applicationId Id of application. Random string
+     *
+     * @return InternalTransaction or null in case of error
+     */
+    fun sendTransfer(
+        value: Float,
+        currency: String,
+        fromUserAddress: String,
+        fromAddressType: String,
+        fromWorkspaceId: String?,
+        toUserAddress: String,
+        toAddressType: String,
+        toWorkspaceId: String?,
+        applicationId: String?
+    ): InternalTransaction? {
+
+        val result: Response<JsonObject>
+
+        try {
+            //  Input model for the REST call
+            val input = InternalTransactionInput(
+                UUID.randomUUID().toString(),
+                value.toString(), currency,
+                fromUserAddress, fromAddressType, fromWorkspaceId,
+                toUserAddress, toAddressType, toWorkspaceId,
+                applicationId
+            )
+
+            //  Prepare the request signature
+            val (nonce, signature) = sign(
+                "/v1/transfer",
+                gson!!.toJson(input).toString()
+            )
+
+            //  Perform request
+            result = api!!.sendTransfer(input, apiConfig!!.apiKey, nonce, signature).execute()
+        } catch(e: Exception) {
+            logger.error("Nova API service was not properly initialized!", e)
+            return null
+        }
+
+        //  Transform server response
+        unfoldResponse(result, InternalTransaction::class.java).apply {
+            return when(this) {
+                is Either.Right -> this.b
+                is Either.Left -> {
+                    logger.error(this.a.toString())
+                    null
+                }
+                else -> null
+            }
+        }
+    }
 }

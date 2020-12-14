@@ -99,7 +99,7 @@ NovaApiService.init(config)
 * [x] `DELETE /exchange/limit/{transactionId}`
 
 ### Transfer
-* [ ] `POST /transfer`
+* [x] `POST /transfer`
 * [ ] `POST /transfer/many`
 * [ ] `POST /transfer_batch`
 * [ ] `POST /transfer_batch/approve`
