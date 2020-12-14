@@ -19,7 +19,7 @@ repositories {
 
 //  Project config
 group = "com.broxus"
-version = "0.0.1-alpha"
+version = "0.0.2-alpha"
 
 //  Bintray config
 val artifactName = "nova-lib"
@@ -149,7 +149,6 @@ bintray {
         version(delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.VersionConfig> {
             name = artifactVersion
             desc = pomDesc
-            //released = Date()
             vcsTag = artifactVersion
         })
     })

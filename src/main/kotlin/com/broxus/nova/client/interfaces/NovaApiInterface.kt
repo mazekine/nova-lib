@@ -8,7 +8,7 @@ import retrofit2.http.*
 
 interface NovaApiInterface {
 
-    //  ADDRESSES
+    //  📫 ADDRESSES
 
     @POST("/v1/static_addresses/renew")
     fun getStaticAddressByUser(
@@ -18,7 +18,7 @@ interface NovaApiInterface {
         @Header("sign") signature: String
     ): Call<JsonObject>
 
-    //  USERS
+    //  👥 USERS
 
     @POST("/v1/users/balance")
     fun getSpecificUserBalance(
@@ -44,14 +44,14 @@ interface NovaApiInterface {
         @Header("sign") signature: String
     ): Call<JsonArray>
 
-    //  META
+    //  ⚙️META
 
     @GET("/v1/meta/currencies_pairs")
     fun getCurrenciesPairs(
         @Header("api-key") apiKey: String
     ): Call<JsonArray>
 
-    //  EXCHANGE
+    //  🔄 EXCHANGE
 
     @POST("/v1/exchange/limit")
     fun createLimitOrder(
@@ -75,13 +75,31 @@ interface NovaApiInterface {
         @Header("sign") signature: String
     ): Call<JsonObject>
 
-    //  TRANSFER
+    //  ➡️TRANSFER
 
     @POST("/v1/transfer")
-    fun sendTransfer(
+    fun transfer(
         @Body request: InternalTransactionInput,
         @Header("api-key") apiKey: String,
         @Header("nonce") nonce: Long,
         @Header("sign") signature: String
     ): Call<JsonObject>
+
+    //  ↗️WITHDRAW
+
+    @POST("/v1/withdraw")
+    fun withdraw(
+        @Body request: WithdrawInput,
+        @Header("api-key") apiKey: String,
+        @Header("nonce") nonce: Long,
+        @Header("sign") signature: String
+    ): Call<JsonObject>
+
+    @GET("/v1/withdraw/validate")
+    fun validateBlockchainAddress(
+        @Body request: WithdrawValidate,
+        @Header("api-key") apiKey: String,
+        @Header("nonce") nonce: Long,
+        @Header("sign") signature: String
+    )
 }

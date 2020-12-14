@@ -506,7 +506,7 @@ object NovaApiService {
     }
 
 
-    //  TRANSFERS
+    //  ➡️ TRANSFERS
 
     /**
      * Send internal transaction to another account of Broxus Nova
@@ -523,7 +523,7 @@ object NovaApiService {
      *
      * @return InternalTransaction or null in case of error
      */
-    fun sendTransfer(
+    fun transfer(
         value: Float,
         currency: String,
         fromUserAddress: String,
@@ -554,7 +554,7 @@ object NovaApiService {
             )
 
             //  Perform request
-            result = api!!.sendTransfer(input, apiConfig!!.apiKey, nonce, signature).execute()
+            result = api!!.transfer(input, apiConfig!!.apiKey, nonce, signature).execute()
         } catch(e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
@@ -562,6 +562,69 @@ object NovaApiService {
 
         //  Transform server response
         unfoldResponse(result, InternalTransaction::class.java).apply {
+            return when(this) {
+                is Either.Right -> this.b
+                is Either.Left -> {
+                    logger.error(this.a.toString())
+                    null
+                }
+                else -> null
+            }
+        }
+    }
+
+    //  ↗️WITHDRAW
+
+    /**
+     * Creates a withdrawal request from the user's balance
+     *
+     * @param id Id of transaction. UUID ver. 4 rfc
+     * @param value Amount of currency. Positive floating point number.
+     * @param currency Сurrency identifier or ticker. Can contain more than 3 letters.
+     * @param userAddress The unique address of the user. Which value to specify the address depends on the addressType. Case sensitive
+     * @param addressType User address type. Case sensitive
+     * @param workspaceId Id of workspace. UUID ver. 4 rfc
+     * @param blockchainAddress Blockchain address
+     * @param applicationId Id of application. Random string
+     * @return WithdrawTransactionId or null in case of error
+     */
+    fun withdraw(
+        id: String,
+        value: Float,
+        currency: String,
+        userAddress: String,
+        addressType: String,
+        workspaceId: String?,
+        blockchainAddress: String,
+        applicationId: String?
+    ): WithdrawTransactionId? {
+
+        val result: Response<JsonObject>
+
+        try {
+            //  Input model for the REST call
+            val input = WithdrawInput(
+                UUID.randomUUID().toString(),
+                value.toString(), currency,
+                userAddress, addressType, workspaceId,
+                blockchainAddress, applicationId
+            )
+
+            //  Prepare the request signature
+            val (nonce, signature) = sign(
+                "/v1/withdraw",
+                gson!!.toJson(input).toString()
+            )
+
+            //  Perform request
+            result = api!!.withdraw(input, apiConfig!!.apiKey, nonce, signature).execute()
+        } catch(e: Exception) {
+            logger.error("Nova API service was not properly initialized!", e)
+            return null
+        }
+
+        //  Transform server response
+        unfoldResponse(result, WithdrawTransactionId::class.java).apply {
             return when(this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
