@@ -152,7 +152,7 @@ object NovaApiService {
     fun getStaticAddressByUser(
         currency: String,
         userAddress: String,
-        addressType: AddressType,
+        addressType: String,
         workspaceId: String
     ): StaticAddress? {
 

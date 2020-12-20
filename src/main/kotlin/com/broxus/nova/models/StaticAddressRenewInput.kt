@@ -14,7 +14,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class StaticAddressRenewInput (
     @SerializedName("currency") @Expose val currency: String,
-    @SerializedName("addressType") @Expose val addressType: AddressType,
+    @SerializedName("addressType") @Expose val addressType: String,
     @SerializedName("userAddress") @Expose val userAddress: String,
     @SerializedName("workspaceId") @Expose val workspaceId: String
 )
