@@ -51,6 +51,9 @@ interface NovaApiInterface {
         @Header("api-key") apiKey: String
     ): Call<JsonArray>
 
+    @GET("/v1/meta/deposit")
+    fun getDepositCurrencies(): Call<JsonArray>
+
     //  🔄 EXCHANGE
 
     @POST("/v1/exchange/limit")

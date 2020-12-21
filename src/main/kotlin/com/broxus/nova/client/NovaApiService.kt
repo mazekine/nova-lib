@@ -265,6 +265,35 @@ object NovaApiService {
     }
 
     /**
+     * Get deposit currencies metadata
+     *
+     * @return List<DepositMeta> or null in case of error
+     */
+    fun getDepositCurrencies(): List<DepositMeta>? {
+        val result: Response<JsonArray>
+
+        try {
+            //  Perform request
+            result = api!!.getDepositCurrencies().execute()
+        } catch(e: Exception) {
+            logger.error("Nova API service was not properly initialized!", e)
+            return null
+        }
+
+        //  Transform server response
+        unfoldResponse(result, List::class.java).apply {
+            return when(this) {
+                is Either.Right -> this.b.castJsonArrayToType<DepositMeta>()
+                is Either.Left -> {
+                    logger.error(this.a.toString())
+                    null
+                }
+                else -> null
+            }
+        }
+    }
+
+    /**
      * Returns balance of the specific user in different currencies
      *
      * @param userAddress The unique address of the user. Which value to specify the address depends on the addressType. Case sensitive!

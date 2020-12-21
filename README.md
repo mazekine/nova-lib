@@ -107,8 +107,8 @@ NovaApiService.init(config)
 
 ### Meta
 * [ ] `GET /meta/withdraw`
-* [ ] `GET /meta/deposit`
-* [ ] `GET /meta/currencies_pairs`
+* [x] `GET /meta/deposit`
+* [x] `GET /meta/currencies_pairs`
 * [ ] `GET /meta/public_key`
 * [ ] `GET /meta/static_address`
 
