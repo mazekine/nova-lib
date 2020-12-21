@@ -6,5 +6,5 @@ data class DepositMeta(
     @Expose val currency: String,
     @Expose val min: String? = null,
     @Expose val max: String? = null,
-    @Expose val scale: Float? = null
+    @Expose val scale: Int? = null
 )
