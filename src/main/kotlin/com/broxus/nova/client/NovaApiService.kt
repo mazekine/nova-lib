@@ -102,7 +102,13 @@ object NovaApiService {
                         Right(gson!!.fromJson(r.body()!!, t))
                     } else {
                         //  Return the error
-                        Left(gson!!.fromJson(r.body()!!, ErrorDescription::class.java))
+                        Left(
+                            ErrorDescription(
+                                r.raw().body()!!.string(),
+                                r.code().toString()
+                            )
+                        )
+                        //Left(gson!!.fromJson(r.body()!!, ErrorDescription::class.java))
                     }
                 }
             }
@@ -110,7 +116,7 @@ object NovaApiService {
             //  Handle unexpected errors
             Left(
                 ErrorDescription(
-                    e.localizedMessage,
+                    e.message + "\n" + e.stackTrace.joinToString("\n"),
                     r.code().toString()
                 )
             )
