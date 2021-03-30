@@ -16,5 +16,5 @@ data class SearchTransactionsInput(
     @Expose val offset: Int?,
     @Expose val kind: TransactionKind?,
     @Expose val direction: TransactionDirection?,
-    @Expose val transactionId: String
+    @Expose val transactionId: String?
 )

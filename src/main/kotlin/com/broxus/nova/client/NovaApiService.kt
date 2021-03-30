@@ -351,21 +351,40 @@ object NovaApiService {
         }
     }
 
+    /**
+     * Get specific user transactions
+     *
+     * @param userAddress The unique address of the user. Which value to specify the address depends on the addressType. Case sensitive!
+     * @param addressType User address type. Case sensitive!
+     * @param workspaceId Id of workspace. UUID ver. 4 rfc
+     * @param groupKind Transaction group kind.
+     * @param orderBy Transaction order.
+     * @param from Unix timestamp.
+     * @param to Unix timestamp.
+     * @param currency Сurrency identifier or ticker. Can contain more than 3 letters.
+     * @param state Current transaction state.
+     * @param count Max 500
+     * @param offset
+     * @param kind Transaction kind.
+     * @param direction Transaction direction.
+     * @param transactionId Id of transaction. UUID ver. 4 rfc
+     * @return
+     */
     fun getSpecificUserTransactions(
         userAddress: String,
         addressType: String,
-        workspaceId: String?,
-        groupKind: TransactionGroupKind?,
-        orderBy: TransactionOrderBy?,
-        from: Long?,
-        to: Long?,
-        currency: String?,
-        state: TransactionState?,
-        count: Int?,
-        offset: Int?,
-        kind: TransactionKind?,
-        direction: TransactionDirection?,
-        transactionId: String
+        workspaceId: String? = null,
+        groupKind: TransactionGroupKind? = null,
+        orderBy: TransactionOrderBy? = null,
+        from: Long? = null,
+        to: Long? = null,
+        currency: String? = null,
+        state: TransactionState? = null,
+        count: Int? = null,
+        offset: Int? = null,
+        kind: TransactionKind? = null,
+        direction: TransactionDirection? = null,
+        transactionId: String? = null
     ): List<Transaction>? {
 
         val result: Response<JsonArray>
