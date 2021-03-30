@@ -19,28 +19,28 @@ repositories {
 
 //  Project config
 group = "com.broxus"
-version = "0.0.6-alpha"
+version = "0.0.8-alpha"
 
 //  Bintray config
 val artifactName = "nova-lib"
 val artifactGroup = project.group.toString()
 val artifactVersion = project.version.toString()
 
-val pomUrl = "https://github.com/vp-mazekine/nova-lib"
-val pomScmUrl = "https://github.com/vp-mazekine/nova-lib"
-val pomIssueUrl = "https://github.com/vp-mazekine/nova-lib/issues"
-val pomDesc = "https://github.com/vp-mazekine/nova-lib"
+val pomUrl = "https://github.com/mazekine/nova-lib"
+val pomScmUrl = "https://github.com/mazekine/nova-lib"
+val pomIssueUrl = "https://github.com/mazekine/nova-lib/issues"
+val pomDesc = "https://github.com/mazekine/nova-lib"
 
-val githubRepoAddress = "vp-mazekine/nova-lib"
+val githubRepoAddress = "mazekine/nova-lib"
 val githubReadme = "README.md"
 
 val pomLicenseName = "Apache-2.0"
 val pomLicenseUrl = "http://www.apache.org/licenses/LICENSE-2.0.txt"
 val pomLicenseDist = "repo"
 
-val pomDeveloperId = "vp-mazekine"
-val pomDeveloperName = "Vladislav Ponomarev"
-val pomDeveloperEmail = "vp@mazekine.com"
+val pomDeveloperId = "mazekine"
+val pomDeveloperName = "Mazekine"
+val pomDeveloperEmail = "hello@mazekine.com"
 
 
 //  Arrow config

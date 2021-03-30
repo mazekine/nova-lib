@@ -22,6 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import kotlin.math.log
 
 object NovaApiService {
     private var api: NovaApiInterface? = null
@@ -72,15 +73,18 @@ object NovaApiService {
      * @param t Expected response type's class
      * @return Either<ErrorDescription, T>
      */
-    private inline fun <reified T> unfoldResponse(r: Response<out JsonElement>, t: Class<T>): Either<ErrorDescription, T>? {
+    private inline fun <reified T> unfoldResponse(
+        r: Response<out JsonElement>,
+        t: Class<T>
+    ): Either<ErrorDescription, T>? {
         return try {
-            when(r.body()) {
+            when (r.body()) {
                 //  If the response body is void
                 null -> Left(
-                    when(r.message()){
+                    when (r.message()) {
                         //  Error without details
                         null -> ErrorDescription(
-                            when(r.code()){
+                            when (r.code()) {
                                 in 400..499 -> "Request error"
                                 in 500..599 -> "Server error"
                                 else -> "Unknown error"
@@ -93,11 +97,12 @@ object NovaApiService {
                                 r.code().toString()
                             )
                         }
-                    })
+                    }
+                )
 
                 //  If the server returned the content
                 else -> {
-                    if(r.isSuccessful) {
+                    if (r.isSuccessful) {
                         //  Try to apply the requested model
                         Right(gson!!.fromJson(r.body()!!, t))
                     } else {
@@ -112,7 +117,7 @@ object NovaApiService {
                     }
                 }
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             //  Handle unexpected errors
             Left(
                 ErrorDescription(
@@ -131,7 +136,7 @@ object NovaApiService {
      */
     private inline fun <reified T> List<*>.castJsonArrayToType(): List<T> {
         val result: MutableList<T> = mutableListOf()
-        val t = object : TypeToken<T>(){}.type
+        val t = object : TypeToken<T>() {}.type
 
         this.forEach {
             try {
@@ -167,11 +172,11 @@ object NovaApiService {
         try {
             //  Input model for the REST call
             val input = StaticAddressRenewInput(
-                            currency,
-                            addressType,
-                            userAddress,
-                            workspaceId
-                        )
+                currency,
+                addressType,
+                userAddress,
+                workspaceId
+            )
 
             //  Prepare the request signature
             val (nonce, signature) = sign(
@@ -181,14 +186,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.getStaticAddressByUser(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, StaticAddress::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -222,14 +227,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.getWorkspaceUsersBalances(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, List::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b.castJsonArrayToType<WorkspaceBalance>()
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -250,16 +255,16 @@ object NovaApiService {
         val result: Response<JsonArray>
 
         try {
-             //  Perform request
+            //  Perform request
             result = api!!.getCurrenciesPairs(apiConfig!!.apiKey).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, List::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b.castJsonArrayToType<CurrenciesPairMeta>()
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -281,14 +286,14 @@ object NovaApiService {
         try {
             //  Perform request
             result = api!!.getDepositCurrencies().execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, List::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b.castJsonArrayToType<DepositMeta>()
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -328,14 +333,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.getSpecificUserBalance(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, List::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b.castJsonArrayToType<AccountBalance>()
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -344,6 +349,71 @@ object NovaApiService {
                 else -> null
             }
         }
+    }
+
+    fun getSpecificUserTransactions(
+        userAddress: String,
+        addressType: String,
+        workspaceId: String?,
+        groupKind: TransactionGroupKind?,
+        orderBy: TransactionOrderBy?,
+        from: Long?,
+        to: Long?,
+        currency: String?,
+        state: TransactionState?,
+        count: Int?,
+        offset: Int?,
+        kind: TransactionKind?,
+        direction: TransactionDirection?,
+        transactionId: String
+    ): List<Transaction>? {
+
+        val result: Response<JsonArray>
+
+        try {
+            //  Input model for the REST call
+            val input = SearchTransactionsInput(
+                userAddress,
+                addressType,
+                workspaceId,
+                groupKind,
+                orderBy,
+                from,
+                to,
+                currency,
+                state,
+                count,
+                offset,
+                kind,
+                direction,
+                transactionId
+            )
+
+            //  Prepare the request signature
+            val (nonce, signature) = sign(
+                "/v1/users/transactions",
+                gson!!.toJson(input).toString()
+            )
+
+            //  Perform request
+            result = api!!.getSpecificUserTransactions(input, apiConfig!!.apiKey, nonce, signature).execute()
+        } catch (e: Exception) {
+            logger.error("Nova API service was not properly initialized!", e)
+            return null
+        }
+
+        //  Transform server response
+        unfoldResponse(result, List::class.java).apply {
+            return when (this) {
+                is Either.Right -> this.b.castJsonArrayToType<Transaction>()
+                is Either.Left -> {
+                    logger.error(this.a.toString())
+                    null
+                }
+                else -> null
+            }
+        }
+
     }
 
     /**
@@ -386,7 +456,21 @@ object NovaApiService {
 
         try {
             //  Input model for the REST call
-            val input = ExchangeSearchInput(id, userAddress, addressType, workspaceId, base, counter, orderSide, state, isAlive, offset, limit, from, to)
+            val input = ExchangeSearchInput(
+                id,
+                userAddress,
+                addressType,
+                workspaceId,
+                base,
+                counter,
+                orderSide,
+                state,
+                isAlive,
+                offset,
+                limit,
+                from,
+                to
+            )
 
             //  Prepare the request signature
             val (nonce, signature) = sign(
@@ -396,14 +480,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.getSpecificUserOrders(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, List::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b.castJsonArrayToType<Exchange>()
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -437,13 +521,19 @@ object NovaApiService {
         to: String,
         fromValue: String,
         toValue: String,
-        applicationId: String? = null
+        applicationId: String? = null,
+        selfTradingPrevention: SelfTradingPrevention? = SelfTradingPrevention.DoNothing
     ): ExchangeTransactionId? {
 
         val result: Response<JsonObject>
 
         //  Input model for the REST call
-        val input = ExchangeLimitInput(id, userAddress, addressType, workspaceId, from, to, fromValue, toValue, applicationId)
+        val input = ExchangeLimitInput(
+            id,
+            userAddress, addressType, workspaceId,
+            from, to, fromValue, toValue,
+            applicationId, selfTradingPrevention
+        )
 
         try {
             //  Prepare the request signature
@@ -454,14 +544,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.createLimitOrder(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, ExchangeTransactionId::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
                     logger.error(
@@ -487,7 +577,7 @@ object NovaApiService {
         try {
             //  Perform request
             result = api!!.cancelOrder(transactionId, apiConfig!!.apiKey).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return false
         }
@@ -522,14 +612,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.getOrderBook(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, ExchangeOrderBook::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -590,14 +680,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.transfer(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, InternalTransaction::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -653,14 +743,14 @@ object NovaApiService {
 
             //  Perform request
             result = api!!.withdraw(input, apiConfig!!.apiKey, nonce, signature).execute()
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             logger.error("Nova API service was not properly initialized!", e)
             return null
         }
 
         //  Transform server response
         unfoldResponse(result, WithdrawTransactionId::class.java).apply {
-            return when(this) {
+            return when (this) {
                 is Either.Right -> this.b
                 is Either.Left -> {
                     logger.error(this.a.toString())
@@ -668,6 +758,43 @@ object NovaApiService {
                 }
                 else -> null
             }
+        }
+    }
+
+    fun validateBlockchainAddress(
+        blockchainAddress: String,
+        currency: String
+    ): Boolean? {
+        val result: Response<String>
+
+        try {
+            //  Input model for the REST call
+            val input = WithdrawValidate(blockchainAddress, currency)
+
+            //  Prepare the request signature
+            val (nonce, signature) = sign(
+                "/v1/withdraw/validate",
+                gson!!.toJson(input).toString()
+            )
+
+            //  Perform request
+            result = api!!.validateBlockchainAddress(input, apiConfig!!.apiKey, nonce, signature).execute()
+        } catch (e: Exception) {
+            logger.error("Nova API service was not properly initialized!", e)
+            return null
+        }
+
+        return if (result.isSuccessful && (result.body() != null)) {
+            result.body().toBoolean()
+        } else {
+            logger.error(
+                when {
+                    result.errorBody() != null -> result.errorBody()!!.string()
+                    result.body() != null -> result.body()
+                    else -> "Unknown error while validating blockchain address. Error code: " + result.code() + ". Message: " + result.message()
+                }
+            )
+            null
         }
     }
 }

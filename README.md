@@ -8,28 +8,26 @@ Kotlin wrapper for [Broxus Nova](https://broxus.com/products/nova)
 * Include reference to the repository in your `repositories` section of your root `build.gradle`:
 ```groovy
 repositories {
-    maven {url "https://dl.bintray.com/cryonyx/nova-lib"}
+    jcenter()
 }
 ```
 * Add the code to your module's `build.gradle` file:
 ```groovy
 dependencies {
-    implementation "com.broxus:nova-lib:0.0.1-alpha"
+    implementation "com.broxus:nova-lib:VERSION"
 }
 ```
 ### Gradle DSL
 * Include reference to the repository in your `repositories` section of your root `build.gradle`:
 ```gradle  
 repositories {
-    maven {
-        url = uri("https://dl.bintray.com/cryonyx/nova-lib")
-    }
+    jcenter()
 }
 ```
 * Add the code to your module's `build.gradle` file:
 ```gradle
 dependencies {
-    implementation("com.broxus:nova-lib:0.0.1-alpha")
+    implementation("com.broxus:nova-lib:VERSION")
 }
 ```
 
@@ -69,7 +67,7 @@ NovaApiService.init(config)
 * [ ] `POST /users/withdrawals`
 * [x] `POST /users/exchanges`
 * [ ] `POST /users/exchanges/trades`
-* [ ] `POST /users/transactions`
+* [x] `POST /users/transactions`
 * [ ] `POST /users/transactions/groups`
 * [ ] `POST /users/invoices`
 * [ ] `POST /users/static_addresses`

@@ -44,6 +44,14 @@ interface NovaApiInterface {
         @Header("sign") signature: String
     ): Call<JsonArray>
 
+    @POST("/v1/users/transactions")
+    fun getSpecificUserTransactions(
+        @Body request: SearchTransactionsInput,
+        @Header("api-key") apiKey: String,
+        @Header("nonce") nonce: Long,
+        @Header("sign") signature: String
+    ): Call<JsonArray>
+
     //  ⚙️META
 
     @GET("/v1/meta/currencies_pairs")
@@ -104,5 +112,14 @@ interface NovaApiInterface {
         @Header("api-key") apiKey: String,
         @Header("nonce") nonce: Long,
         @Header("sign") signature: String
-    )
+    ): Call<String>
+
+    /**
+     * This method allows you to view the withdrawal commission size (the withdrawal of the specified currency).
+     */
+    @GET("/v1/withdraw/fees")
+    fun getWithdrawFees(
+        @Query("currency") currency: String
+    ): Call<JsonObject>
+
 }

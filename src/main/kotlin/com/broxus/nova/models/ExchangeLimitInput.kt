@@ -15,6 +15,7 @@ import com.google.gson.annotations.Expose
  * @property fromValue Amount of currency. Positive floating point number.
  * @property toValue Amount of currency. Positive floating point number
  * @property applicationId Id of application. Random string
+ * @property selfTradingPrevention Controls the protection against self-trading
  */
 data class ExchangeLimitInput (
     @Expose val id: String,
@@ -25,5 +26,6 @@ data class ExchangeLimitInput (
     @Expose val to: String,
     @Expose val fromValue: String,
     @Expose val toValue: String,
-    @Expose val applicationId: String?
+    @Expose val applicationId: String?,
+    @Expose val selfTradingPrevention: SelfTradingPrevention?
 )
