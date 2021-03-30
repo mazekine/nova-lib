@@ -19,7 +19,7 @@ repositories {
 
 //  Project config
 group = "com.broxus"
-version = "0.0.8-alpha"
+version = "0.0.9-alpha"
 
 //  Bintray config
 val artifactName = "nova-lib"
