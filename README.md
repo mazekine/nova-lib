@@ -14,7 +14,7 @@ repositories {
 * Add the code to your module's `build.gradle` file:
 ```groovy
 dependencies {
-    implementation "com.broxus:nova-lib:VERSION"
+    implementation "com.mazekine:nova-lib:VERSION"
 }
 ```
 ### Gradle DSL
@@ -27,7 +27,7 @@ repositories {
 * Add the code to your module's `build.gradle` file:
 ```gradle
 dependencies {
-    implementation("com.broxus:nova-lib:VERSION")
+    implementation("com.mazekine:nova-lib:VERSION")
 }
 ```
 

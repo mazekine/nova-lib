@@ -5,9 +5,12 @@ plugins {
     java
     `java-library`
     `maven-publish`
+    signing
     id("com.github.johnrengelman.shadow") version "6.1.0"
     id("com.jfrog.bintray") version "1.8.5"
     id("org.jlleitschuh.gradle.ktlint-idea") version "9.4.1"
+    id("org.jetbrains.dokka") version "1.4.30"
+    id("org.danilopianini.publish-on-central") version "0.4.0"
 }
 
 repositories {
@@ -18,16 +21,18 @@ repositories {
 }
 
 //  Project config
-group = "com.broxus"
-version = "0.0.9-alpha"
+group = "com.mazekine"
+version = "0.0.10-alpha"
 
-//  Bintray config
-val artifactName = "nova-lib"
+//  Publishing config
+val artifactName = "broxus-nova-lib"
 val artifactGroup = project.group.toString()
 val artifactVersion = project.version.toString()
 
+val artifactDescription = "Kotlin wrapper for Broxus Nova"
+
 val pomUrl = "https://github.com/mazekine/nova-lib"
-val pomScmUrl = "https://github.com/mazekine/nova-lib"
+val pomScmUrl = "git:git@github.com:mazekine/nova-lib"
 val pomIssueUrl = "https://github.com/mazekine/nova-lib/issues"
 val pomDesc = "https://github.com/mazekine/nova-lib"
 
@@ -78,78 +83,46 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>() {
 }
 
 application {
-    mainClassName = "com.broxus.nova.client.NovaApiService"    //  Have to leave it here until shadowJar fixes the compatibility bug
-    mainClass.set("com.broxus.nova.client.NovaApiService")
+    mainClassName =
+        "com.mazekine.nova.client.NovaApiService"    //  Have to leave it here until shadowJar fixes the compatibility bug
+    mainClass.set("com.mazekine.nova.client.NovaApiService")
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
-    archiveClassifier.set("sources")
-    from(sourceSets.getByName("main").allSource)
-}
+publishOnCentral {
+    projectDescription = artifactDescription
+    projectLongName = project.name
+    licenseName = pomLicenseName
+    licenseUrl = pomLicenseUrl
+    projectUrl = pomUrl
+    scmConnection = pomScmUrl
 
-publishing {
-    publications {
-        create<MavenPublication>(artifactName) {
-            groupId = artifactGroup
-            artifactId = artifactName
-            version = artifactVersion
-            from(components["java"])
+    repository("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+        user = System.getenv("MAVEN_CENTRAL_USERNAME") ?: project.properties["mavenCentralUsername"].toString()
+        password = System.getenv("MAVEN_CENTRAL_PASSWORD") ?: project.properties["mavenCentralPassword"].toString()
+        name = "Sonatype"
+    }
 
-            artifact(sourcesJar)
-
-            pom.withXml{
-                asNode().apply {
-                    appendNode("description", pomDesc)
-                    appendNode("name", rootProject.name)
-                    appendNode("url", pomUrl)
-                    appendNode("licenses").appendNode("license").apply {
-                        appendNode("name", pomLicenseName)
-                        appendNode("url", pomLicenseUrl)
-                        appendNode("distribution", pomLicenseDist)
-                    }
-                    appendNode("developers").appendNode("developer").apply {
-                        appendNode("id", pomDeveloperId)
-                        appendNode("name", pomDeveloperName)
-                        appendNode("email", pomDeveloperEmail)
-                    }
-                    appendNode("scm").apply {
-                        appendNode("url", pomScmUrl)
-                    }
-                }
+    publishing {
+        publications {
+            withType<MavenPublication> {
+                configurePomForMavenCentral()
             }
         }
     }
 }
 
-bintray {
-    user = project.findProperty("bintrayUser").toString()
-    key = project.findProperty("bintrayKey").toString()
-    setPublications(artifactName)
-
-    dryRun = false
-    publish = true
-    override = false
-
-    pkg(delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.PackageConfig>{
-        repo = artifactName
-        name = artifactName
-
-        userOrg = "cryonyx"
-        githubRepo = githubRepoAddress
-        vcsUrl = pomUrl
-        description = "Kotlin wrapper for Broxus Nova API"
-        desc = description
-        websiteUrl = pomUrl
-        issueTrackerUrl = pomIssueUrl
-        githubReleaseNotesFile = githubReadme
-
-        setLabels("kotlin", "broxus", "nova", "wrapper", "mazekine")
-        setLicenses("Apached-2.0")
-
-        version(delegateClosureOf<com.jfrog.bintray.gradle.BintrayExtension.VersionConfig> {
-            name = artifactVersion
-            desc = pomDesc
-            vcsTag = artifactVersion
-        })
-    })
+publishing {
+    publications {
+        withType<MavenPublication> {
+            pom {
+                developers {
+                    developer {
+                        name.set(pomDeveloperName)
+                        email.set(pomDeveloperEmail)
+                        url.set(pomUrl)
+                    }
+                }
+            }
+        }
+    }
 }

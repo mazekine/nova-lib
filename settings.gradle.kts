@@ -1,2 +1,8 @@
-rootProject.name = "nova-lib"
+rootProject.name = "broxus-nova-lib"
 
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        jcenter()
+    }
+}
