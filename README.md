@@ -8,26 +8,26 @@ Kotlin wrapper for [Broxus Nova](https://broxus.com/products/nova)
 * Include reference to the repository in your `repositories` section of your root `build.gradle`:
 ```groovy
 repositories {
-    jcenter()
+    mavenCentral()
 }
 ```
 * Add the code to your module's `build.gradle` file:
 ```groovy
 dependencies {
-    implementation "com.mazekine:nova-lib:VERSION"
+    implementation "com.mazekine:broxus-nova-lib:VERSION"
 }
 ```
 ### Gradle DSL
 * Include reference to the repository in your `repositories` section of your root `build.gradle`:
 ```gradle  
 repositories {
-    jcenter()
+    mavenCentral()
 }
 ```
 * Add the code to your module's `build.gradle` file:
 ```gradle
 dependencies {
-    implementation("com.mazekine:nova-lib:VERSION")
+    implementation("com.mazekine:broxus-nova-lib:VERSION")
 }
 ```
 
